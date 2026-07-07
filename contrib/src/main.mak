@@ -149,16 +149,26 @@ EXTRA_LDFLAGS += -m32
 endif
 endif
 
-ifneq ($(findstring clang, $(shell $(CC) --version 2>/dev/null)),)
+clang_at_least = $(shell echo false)
+clang_at_most  = $(shell echo false)
+clang_major_is = $(shell echo false)
+gcc_at_least = $(shell echo false)
+gcc_at_most  = $(shell echo false)
+gcc_major_is = $(shell echo false)
+ifneq ($(findstring clang, $(shell $(CC) --version 2>/dev/null | grep -qi clang && echo "clang")),)
 HAVE_CLANG := 1
 CLANG_VERSION := $(shell $(CC) --version | head -1 | grep -o '[0-9]\+\.' | head -1 | cut -d '.' -f 1)
 clang_at_least = $(shell [ $(CLANG_VERSION) -ge $(1) ] && echo true)
 clang_at_most  = $(shell [ $(CLANG_VERSION) -le $(1) ] && echo true)
 clang_major_is = $(shell [ $(CLANG_VERSION) -eq $(1) ] && echo true)
 else
-clang_at_least = $(shell echo false)
-clang_at_most  = $(shell echo false)
-clang_major_is = $(shell echo false)
+ifneq ($(findstring Free Software Foundation, $(shell $(CC) --version 2>/dev/null | head -2 | tail -1)),)
+HAVE_GCC := 1
+GCC_VERSION := $(shell $(CC) --version | head -1 | grep -o '[0-9]\+\.' | head -1 | cut -d '.' -f 1)
+gcc_at_least = $(shell [ $(GCC_VERSION) -ge $(1) ] && echo true)
+gcc_at_most  = $(shell [ $(GCC_VERSION) -le $(1) ] && echo true)
+gcc_major_is = $(shell [ $(GCC_VERSION) -eq $(1) ] && echo true)
+endif
 endif
 
 # -fno-stack-check is a workaround for a possible
@@ -624,6 +634,26 @@ ifdef QT_USES_SYSTEM_TOOLS
 # We checked the versions match, assume we know what we're going
 QT_CMAKE_CONFIG += -DQT_NO_PACKAGE_VERSION_CHECK=TRUE
 endif
+
+##### fontconfig
+ifdef HAVE_ANDROID
+BUILD_WITH_FONTCONFIG := 1
+else
+ifdef HAVE_DARWIN_OS
+BUILD_WITH_FONTCONFIG := 0
+else
+ifdef HAVE_WIN32
+BUILD_WITH_FONTCONFIG := 0
+else
+ifdef HAVE_EMSCRIPTEN
+BUILD_WITH_FONTCONFIG := 0
+else
+BUILD_WITH_FONTCONFIG := 1
+endif
+endif
+endif
+endif
+
 
 ifdef GPL
 REQUIRE_GPL =

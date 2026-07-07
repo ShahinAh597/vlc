@@ -42,7 +42,6 @@
 #import "library/VLCInputItem.h"
 #import "library/VLCLibraryAbstractMediaLibrarySegmentViewController.h"
 #import "library/VLCLibraryController.h"
-#import "library/VLCLibraryCollectionViewItem.h"
 #import "library/VLCLibraryCollectionViewSupplementaryElementView.h"
 #import "library/VLCLibraryModel.h"
 #import "library/VLCLibrarySegment.h"
@@ -164,9 +163,7 @@ static int ShowController(vlc_object_t * __unused p_this,
     self.identifier = VLCLibraryWindowIdentifier;
     self.minSize = NSMakeSize(VLCLibraryWindowMinimalWidth, VLCLibraryWindowMinimalHeight);
 
-    if(@available(macOS 10.12, *)) {
-        self.tabbingMode = NSWindowTabbingModeDisallowed;
-    }
+    self.tabbingMode = NSWindowTabbingModeDisallowed;
 
     VLCMain *mainInstance = VLCMain.sharedInstance;
     _playQueueController = [mainInstance playQueueController];
